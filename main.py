@@ -55,3 +55,6 @@ class Plugin:
         decky.migrate_runtime(
             os.path.join(decky.DECKY_HOME, "template"),
             os.path.join(decky.DECKY_USER_HOME, ".local", "share", "decky-template"))
+
+    async def scan_library(self):
+        decky.logger.info("Not Implemented")
