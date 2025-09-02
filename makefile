@@ -97,15 +97,20 @@ check:
 	fi
 
 # Install to Steam Deck (if connected via SSH)
+
+
 deploy: package
 	@echo "🚀 Deploying to Steam Deck..."
 	@if [ -z "$(DECK_IP)" ]; then \
 		echo "❌ Set DECK_IP environment variable (e.g., export DECK_IP=192.168.1.100)"; \
 		exit 1; \
 	fi
-	@scp $(ZIP_NAME) deck@$(DECK_IP):~/
-	@echo "✅ Deployed $(ZIP_NAME) to Steam Deck"
-	@echo "💡 SSH to deck and extract to ~/.local/share/Steam/steamapps/common/SteamDeck/homebrew/plugins/"
+	@echo "📂 Creating plugins directory on Steam Deck..."
+	@ssh deck@$(DECK_IP) "mkdir -p ~/Downloads/SteamDeck/homebrew/plugins/"
+	@scp $(ZIP_NAME) deck@$(DECK_IP):~/Downloads/SteamDeck/homebrew/plugins/
+#	@echo "📦 Extracting plugin on Steam Deck..."
+#	@ssh deck@$(DECK_IP) "cd ~/Downloads/SteamDeck/homebrew/plugins/ && unzip -o $(ZIP_NAME) && rm $(ZIP_NAME)"
+	@echo "✅ Deployed $(PLUGIN_NAME) to Steam Deck"
 
 # Show help
 help:

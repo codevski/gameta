@@ -3,8 +3,6 @@ import {
   PanelSection,
   PanelSectionRow,
   ToggleField,
-  // Navigation,
-  staticClasses,
 } from "@decky/ui";
 import {
   addEventListener,
@@ -12,10 +10,12 @@ import {
   callable,
   definePlugin,
   toaster,
-  // routerHook
+  routerHook,
 } from "@decky/api";
+import { TitleView } from "./components/titleview";
 import { useState } from "react";
 import { FaShip } from "react-icons/fa";
+import { Settings } from "./pages/Settings";
 
 // import logo from "../assets/logo.png";
 
@@ -41,8 +41,15 @@ function Content() {
 
   const scanLibrary = async () => {
     setIsScanning(true);
-    await new Promise((resolve) => setTimeout(resolve, 30000));
+    // Simulate scanning process
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    setResult(Math.floor(Math.random() * 100) + 50); // Mock scanned games count
     setIsScanning(false);
+
+    toaster.toast({
+      title: "Library Scan Complete",
+      body: `Found ${result || 0} games in your Steam library`,
+    });
   };
 
   return (
@@ -57,14 +64,28 @@ function Content() {
             {isScanning ? "Scanning..." : "Scan Steam Library"}
           </ButtonItem>
         </PanelSectionRow>
+
+        {result && (
+          <PanelSectionRow>
+            <div style={{ fontSize: "14px", opacity: 0.7 }}>
+              Found {result} games
+            </div>
+          </PanelSectionRow>
+        )}
       </PanelSection>
 
-      {/* Collections Section */}
+      {/* Collections Section - Coming Soon */}
       <PanelSection title="Collections">
         <PanelSectionRow>
           <ButtonItem
             layout="below"
-            onClick={() => console.log("createCollections")}
+            onClick={() => {
+              toaster.toast({
+                title: "Coming Soon!",
+                body: "Collection creation will be available in v1.1.0",
+              });
+            }}
+            disabled={!result} // Only enable after scanning
           >
             Create Genre Collections
           </ButtonItem>
@@ -74,105 +95,66 @@ function Content() {
           <ToggleField
             label="Auto-update collections"
             checked={autoUpdate}
-            onChange={() => setAutoUpdate(!autoUpdate)}
+            onChange={setAutoUpdate}
+            disabled={!result} // Only enable after scanning
           />
         </PanelSectionRow>
       </PanelSection>
 
-      {/* Settings Section */}
-      <PanelSection title="Settings">
+      {/* Quick Status */}
+      <PanelSection title="Status">
         <PanelSectionRow>
-          <ButtonItem
-            layout="below"
-            onClick={() => {
-              // Open settings modal or navigate to settings page
+          <div
+            style={{
+              padding: "12px",
+              backgroundColor: "rgba(255,255,255,0.1)",
+              borderRadius: "8px",
+              fontSize: "12px",
             }}
           >
-            Configure Genres
-          </ButtonItem>
+            <div>
+              <strong>Version:</strong> 1.0.0
+            </div>
+            <div>
+              <strong>Games Scanned:</strong> {result || "None"}
+            </div>
+            <div>
+              <strong>Collections:</strong> Coming Soon
+            </div>
+          </div>
         </PanelSectionRow>
-      </PanelSection>
-      <PanelSection title="Panel Section">
-        <PanelSectionRow>
-          <ButtonItem layout="below" onClick={onClick}>
-            {result ?? "Add two numbers via Python"}
-          </ButtonItem>
-        </PanelSectionRow>
-        <PanelSectionRow>
-          <ButtonItem layout="below" onClick={() => startTimer()}>
-            {"Start Python timer"}
-          </ButtonItem>
-        </PanelSectionRow>
-        <PanelSectionRow>
-          <ButtonItem layout="below" onClick={() => console.log("Settings")}>
-            {"Scan Library"}
-          </ButtonItem>
-        </PanelSectionRow>
-        <PanelSectionRow>Games Scanned: {result ?? "0"}</PanelSectionRow>
-
-        {/* <PanelSectionRow>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <img src={logo} />
-        </div>
-      </PanelSectionRow> */}
-
-        {/*<PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={() => {
-            Navigation.Navigate("/decky-plugin-test");
-            Navigation.CloseSideMenus();
-          }}
-        >
-          Router
-        </ButtonItem>
-      </PanelSectionRow>*/}
       </PanelSection>
     </>
   );
 }
 
 export default definePlugin(() => {
-  console.log(
-    "Template plugin initializing, this is called once on frontend startup",
-  );
+  console.log("Gameta plugin initializing...");
 
-  // serverApi.routerHook.addRoute("/decky-plugin-test", DeckyPluginRouterTest, {
-  //   exact: true,
-  // });
+  routerHook.addRoute("/gameta", Settings, {
+    exact: true,
+  });
 
-  // Add an event listener to the "timer_event" event from the backend
+  // Add event listener for timer events
   const listener = addEventListener<
     [test1: string, test2: boolean, test3: number]
   >("timer_event", (test1, test2, test3) => {
-    console.log("Template got timer_event with:", test1, test2, test3);
+    console.log("Gameta got timer_event with:", test1, test2, test3);
     toaster.toast({
-      title: "template got timer_event",
+      title: "Gameta Event",
       body: `${test1}, ${test2}, ${test3}`,
     });
   });
 
   return {
-    // The name shown in various decky menus
     name: "Gameta",
-    // The element displayed at the top of your plugin's menu
-    titleView: (
-      <div className={staticClasses.Title}>
-        Gameta{" "}
-        <ButtonItem layout="inline" onClick={() => console.log("Settings")}>
-          {"S"}
-        </ButtonItem>
-      </div>
-    ),
-    // The content of your plugin's menu
+    titleView: <TitleView />,
     content: <Content />,
-    // The icon displayed in the plugin list
     icon: <FaShip />,
-    // The function triggered when your plugin unloads
     onDismount() {
-      console.log("Unloading");
+      console.log("Gameta unloading...");
       removeEventListener("timer_event", listener);
-      // serverApi.routerHook.removeRoute("/decky-plugin-test");
+      routerHook.removeRoute("/gameta");
     },
   };
 });
