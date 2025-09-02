@@ -7,7 +7,7 @@ import {
 import {
   addEventListener,
   removeEventListener,
-  callable,
+  // callable,
   definePlugin,
   toaster,
   routerHook,
@@ -17,27 +17,13 @@ import { useState } from "react";
 import { FaShip } from "react-icons/fa";
 import { Settings } from "./pages/Settings";
 
-// import logo from "../assets/logo.png";
-
-// This function calls the python function "add", which takes in two numbers and returns their sum (as a number)
-// Note the type annotations:
-//  the first one: [first: number, second: number] is for the arguments
-//  the second one: number is for the return value
-const add = callable<[first: number, second: number], number>("add");
-
-// This function calls the python function "start_timer", which takes in no arguments and returns nothing.
-// It starts a (python) timer which eventually emits the event 'timer_event'
-const startTimer = callable<[], void>("start_timer");
+// Python function calls
+// const add = callable<[first: number, second: number], number>("add");
 
 function Content() {
   const [result, setResult] = useState<number | undefined>();
   const [isScanning, setIsScanning] = useState(false);
   const [autoUpdate, setAutoUpdate] = useState(false);
-
-  const onClick = async () => {
-    const result = await add(Math.random(), Math.random());
-    setResult(result);
-  };
 
   const scanLibrary = async () => {
     setIsScanning(true);
@@ -132,7 +118,7 @@ export default definePlugin(() => {
   console.log("Gameta plugin initializing...");
 
   routerHook.addRoute("/gameta", Settings, {
-    exact: true,
+    exact: false,
   });
 
   // Add event listener for timer events
