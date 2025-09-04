@@ -11,6 +11,11 @@ class Plugin:
     async def add(self, left: int, right: int) -> int:
         return left + right
 
+    async def scan_library(self):
+        decky.logger.info("Scanning library")
+        await asyncio.sleep(5)
+        decky.logger.info("Library scan complete")
+
     async def long_running(self):
         await asyncio.sleep(15)
         # Passing through a bunch of random data, just as an example
@@ -55,6 +60,3 @@ class Plugin:
         decky.migrate_runtime(
             os.path.join(decky.DECKY_HOME, "template"),
             os.path.join(decky.DECKY_USER_HOME, ".local", "share", "decky-template"))
-
-    async def scan_library(self):
-        decky.logger.info("Not Implemented")
