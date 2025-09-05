@@ -1,6 +1,8 @@
 import os
+from typing import Dict
 
 # The decky plugin module is located at decky-loader/plugin
+from this import d
 # For easy intellisense checkout the decky-loader code repo
 # and add the `decky-loader/plugin/imports` path to `python.analysis.extraPaths` in `.vscode/settings.json`
 import decky
@@ -11,10 +13,47 @@ class Plugin:
     async def add(self, left: int, right: int) -> int:
         return left + right
 
-    async def scan_library(self):
-        decky.logger.info("Scanning library")
-        await asyncio.sleep(5)
-        decky.logger.info("Library scan complete")
+    async def scan_library(self) -> Dict:
+        """
+        Scan the user's complete Steam library and return total owned games count
+
+        Returns:
+            Dict containing:
+            - total_games: int
+            - success: bool
+            - error: str
+            - method_used: str
+        """
+        try:
+            decky.logger.info("Starting complete Steam library scan...")
+            result = await self._get_owned_games()
+
+            if result["success"]:
+                decky.logger.info(f"Library scan complete. Total games: {result['total_games']}")
+                return result
+            else:
+                decky.logger.error(f"Library scan failed: {result['error']}")
+                return result
+
+        except Exception as e:
+            decky.logger.error(f"Library scan failed: {str(e)}")
+
+            return {
+                    "success": False,
+                    "error": str(e),
+                    "total_games": 0,
+                    "method_used": "none"
+            }
+
+    async def _get_owned_games(self):
+        # Implementation of _get_owned_games method
+        #
+        return {
+            "success": False,
+            "error": "No Steam user directories found",
+            "total_games": 10,
+            "method_used": "local_data"
+        }
 
     async def long_running(self):
         await asyncio.sleep(15)
