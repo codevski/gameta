@@ -7,7 +7,7 @@ import {
 import {
   addEventListener,
   removeEventListener,
-  // callable,
+  callable,
   definePlugin,
   toaster,
   routerHook,
@@ -19,6 +19,7 @@ import { Settings } from "./pages/Settings";
 
 // Python function calls
 // const add = callable<[first: number, second: number], number>("add");
+const games = callable("scan_library");
 
 function Content() {
   const [result, setResult] = useState<number | undefined>();
@@ -29,6 +30,10 @@ function Content() {
     setIsScanning(true);
     // Simulate scanning process
     await new Promise((resolve) => setTimeout(resolve, 3000));
+    toaster.toast({
+      title: "Function Called",
+      body: `raw data: ${JSON.stringify(await games())}`,
+    });
     setResult(Math.floor(Math.random() * 100) + 50); // Mock scanned games count
     setIsScanning(false);
 

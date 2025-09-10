@@ -46,14 +46,51 @@ class Plugin:
             }
 
     async def _get_owned_games(self):
-        # Implementation of _get_owned_games method
-        #
+        """
+        Try to parse packageinfo.vdf - contains ALL owned packages/games
+        This is the most complete local method
+        """
+        # packageinfo.vdf contains all owned packages
+        try:
+            steam_path = self._find_steam_path()
+
+            if not steam_path:
+                return {"success": False, "error": "Steam not found"}
+
+             # Use the found steam path
+            package_file = os.path.join(steam_path, "steam","appcache", "packageinfo.vdf")
+
+            if not os.path.exists(package_file):
+                decky.logger.info(f"packageinfo.vdf not found at: {package_file}")
+                return {"success": False, "error": "packageinfo.vdf not found"}
+
+            decky.logger.info(f"Parsing packageinfo.vdf at: {package_file}")
+
+        except Exception as e:
+            decky.logger.error(f"Failed to find packageinfo.vdf: {str(e)}")
         return {
             "success": False,
             "error": "No Steam user directories found",
             "total_games": 10,
             "method_used": "local_data"
         }
+
+    def _find_steam_path(self):
+        """Find Steam installation directory"""
+        possible_paths = [
+            "/home/deck/.steam",
+            "/home/deck/.local/share/Steam",
+            os.path.expanduser("~/.steam"),
+            os.path.expanduser("~/.local/share/Steam")
+        ]
+
+        for path in possible_paths:
+            if os.path.exists(path):
+                decky.logger.info(f"Found Steam at: {path}")
+                return path
+
+        decky.logger.warning("Steam installation not found")
+        return None
 
     async def long_running(self):
         await asyncio.sleep(15)
