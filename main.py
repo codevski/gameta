@@ -65,6 +65,35 @@ class Plugin:
                 return {"success": False, "error": "packageinfo.vdf not found"}
 
             decky.logger.info(f"Parsing packageinfo.vdf at: {package_file}")
+            with open(package_file, 'rb') as f:
+                content = f.read()
+
+            import re
+
+            text_content = content.decode('utf-8', errors='ignore')
+
+            app_ids = set()
+
+            app_id_pattern = r'\b(\d{4,8})\b'
+            potential_ids = re.findall(app_id_pattern, text_content)
+
+            for app_id_str in potential_ids:
+                app_id = int(app_id_str)
+                if 10000 <= app_id <= 99999999:
+                    app_ids.add(app_id)
+
+            total_games = len(app_ids)
+            decky.logger.info(f"Found {total_games} potential games in packageinfo.vdf")
+
+            if total_games > 0:
+                return {
+                    "success": True,
+                    "total_games": total_games,
+                    "error": None,
+                    "method_used": "packageinfo_binary_parse"
+                }
+            else:
+                return {"success": False, "error": "No games found in packageinfo"}
 
         except Exception as e:
             decky.logger.error(f"Failed to find packageinfo.vdf: {str(e)}")
