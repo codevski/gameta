@@ -1,5 +1,4 @@
 # Gameta Decky Plugin Makefile
-
 PLUGIN_NAME = gameta
 VERSION = 1.0.0
 DIST_DIR = dist
@@ -8,6 +7,9 @@ ZIP_NAME = $(PLUGIN_NAME)-v$(VERSION).zip
 
 # Required files for distribution
 REQUIRED_FILES = package.json plugin.json main.py README.md LICENSE
+
+# Required directories for distribution
+REQUIRED_DIRS = lib
 
 # Default target
 all: clean build package
@@ -37,6 +39,16 @@ package: build
 			echo "✅ Copied $$file"; \
 		else \
 			echo "⚠️  Warning: $$file not found"; \
+		fi \
+	done
+
+	# Copy required directories
+	@for dir in $(REQUIRED_DIRS); do \
+		if [ -d $$dir ]; then \
+			cp -r $$dir $(OUT_DIR)/$(PLUGIN_NAME)/; \
+			echo "✅ Copied $$dir/"; \
+		else \
+			echo "⚠️  Warning: $$dir/ not found"; \
 		fi \
 	done
 
@@ -76,6 +88,13 @@ quick-package:
 		fi \
 	done
 
+	# Copy required directories
+	@for dir in $(REQUIRED_DIRS); do \
+		if [ -d $$dir ]; then \
+			cp -r $$dir $(OUT_DIR)/$(PLUGIN_NAME)/; \
+		fi \
+	done
+
 	# Create zip
 	@cd $(OUT_DIR) && zip -r ../$(ZIP_NAME) $(PLUGIN_NAME)/
 	@echo "🎉 Quick package created: $(ZIP_NAME)"
@@ -90,6 +109,16 @@ check:
 			echo "❌ $$file (missing)"; \
 		fi \
 	done
+
+	@echo "🔍 Checking required directories..."
+	@for dir in $(REQUIRED_DIRS); do \
+		if [ -d $$dir ]; then \
+			echo "✅ $$dir/"; \
+		else \
+			echo "❌ $$dir/ (missing)"; \
+		fi \
+	done
+
 	@if [ -d "$(DIST_DIR)" ]; then \
 		echo "✅ $(DIST_DIR)/"; \
 	else \
@@ -97,8 +126,6 @@ check:
 	fi
 
 # Install to Steam Deck (if connected via SSH)
-
-
 deploy: package
 	@echo "🚀 Deploying to Steam Deck..."
 	@if [ -z "$(DECK_IP)" ]; then \
